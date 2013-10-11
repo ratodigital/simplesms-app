@@ -1,76 +1,95 @@
 package com.ratodigital.simplesms;
 
+import java.util.HashMap;
+
+import android.app.IntentService;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
+import android.os.SystemClock;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
-import com.google.android.gcm.GCMBaseIntentService;
+import com.google.android.gms.gcm.GoogleCloudMessaging;
 
-public class GCMIntentService extends GCMBaseIntentService {
+public class GcmIntentService extends IntentService {
+    static final String TAG = "GCMDemo";
+    
+    public static final int NOTIFICATION_ID = 1;
+    private NotificationManager mNotificationManager;
+    NotificationCompat.Builder builder;
 
-	private static final String TAG = "GCMIntentService";
-
-    public GCMIntentService() {
-        super(MainActivity.SENDER);
-    }
-
-    /**
-     * Method called on device registered
-     **/
-    @Override
-    protected void onRegistered(Context context, String registrationId) {
-        Log.i(TAG, "Device registered: regId = " + registrationId);
-        //ServerUtilities.register(context, MainActivity.name, MainActivity.email, registrationId);
-    }
-
-    /**
-     * Method called on device un registred
-     * */
-    @Override
-    protected void onUnregistered(Context context, String registrationId) {
-        Log.i(TAG, "Device unregistered");
-//        ServerUtilities.unregister(context, registrationId);
-    }
-
-    /**
-     * Method called on Receiving a new message
-     * */
-    @Override
-    protected void onMessage(Context context, Intent intent) {
-        Log.i(TAG, "Received message");
-//        String message = intent.getExtras().getString("price");
-        
-//        displayMessage(context, message);
-        // notifies user
-//        generateNotification(context, message);
-    }
-
-    /**
-     * Method called on receiving a deleted message
-     * */
-    @Override
-    protected void onDeletedMessages(Context context, int total) {
-        Log.i(TAG, "Received deleted messages notification");
-//        String message = getString(R.string.gcm_deleted, total);
-//        displayMessage(context, message);
-//        // notifies user
-//        generateNotification(context, message);
-    }
-
-    /**
-     * Method called on Error
-     * */
-    @Override
-    public void onError(Context context, String errorId) {
-        Log.i(TAG, "Received error: " + errorId);
-//        displayMessage(context, getString(R.string.gcm_error, errorId));
+    public GcmIntentService() {
+        super("GcmIntentService");
     }
 
     @Override
-    protected boolean onRecoverableError(Context context, String errorId) {
-        // log message
-        Log.i(TAG, "Received recoverable error: " + errorId);
-        return super.onRecoverableError(context, errorId);
+    protected void onHandleIntent(Intent intent) {
+        Bundle extras = intent.getExtras();
+        GoogleCloudMessaging gcm = GoogleCloudMessaging.getInstance(this);
+        // The getMessageType() intent parameter must be the intent you received
+        // in your BroadcastReceiver.
+        String messageType = gcm.getMessageType(intent);
+
+        if (!extras.isEmpty()) {  // has effect of unparcelling Bundle
+            /*
+             * Filter messages based on message type. Since it is likely that GCM
+             * will be extended in the future with new message types, just ignore
+             * any message types you're not interested in, or that you don't
+             * recognize.
+             */
+            if (GoogleCloudMessaging.
+                    MESSAGE_TYPE_SEND_ERROR.equals(messageType)) {
+                sendNotification("Send error: " + extras.toString());
+            } else if (GoogleCloudMessaging.
+                    MESSAGE_TYPE_DELETED.equals(messageType)) {
+                sendNotification("Deleted messages on server: " +
+                        extras.toString());
+            // If it's a regular GCM message, do some work.
+            } else if (GoogleCloudMessaging.
+                    MESSAGE_TYPE_MESSAGE.equals(messageType)) {
+                
+            	checkNewMessagesFromServer();
+            	
+                Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
+                // Post notification of received message.
+                sendNotification("Received: " + extras.getString("msgText"));//extras.toString());
+                Log.i(TAG, "Received: " + extras.toString());
+            }
+        }
+        // Release the wake lock provided by the WakefulBroadcastReceiver.
+        GcmBroadcastReceiver.completeWakefulIntent(intent);
     }
 
+    // Put the message into a notification and post it.
+    // This is just one simple example of what you might choose to do with
+    // a GCM message.
+    private void sendNotification(String msg) {
+        mNotificationManager = (NotificationManager)
+                this.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        PendingIntent contentIntent = PendingIntent.getActivity(this, 0,
+                new Intent(this, RegisterActivity.class), 0);
+
+        NotificationCompat.Builder mBuilder =
+                new NotificationCompat.Builder(this)
+        .setSmallIcon(R.drawable.ic_stat_gcm)
+        .setContentTitle("GCM Notification")
+        .setStyle(new NotificationCompat.BigTextStyle()
+        .bigText(msg))
+        .setContentText(msg);
+
+        mBuilder.setContentIntent(contentIntent);
+        mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
+    }
+    
+    
+    private void checkNewMessagesFromServer() {
+		HashMap<String, String> params = new HashMap<String, String>();
+		String result = HttpUtil.performGet("http://simplesmserver.appspot.com/gcm/list");
+		Log.v(TAG, result);
+	}
+    
 }
