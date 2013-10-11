@@ -5,5 +5,9 @@
     <string name="action_settings">Settings</string>
     <string name="hello_world">Hello world!</string>
     <string name="title_activity_home">HomeActivity</string>
+    <string name="name">Nome</string>
+    <string name="password">Senha</string>
+    <string name="email">Email</string>
+    <string name="registrar_logar">Registrar/Logar</string>
 
 </resources>
