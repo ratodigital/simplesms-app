@@ -1,6 +1,9 @@
 package com.ratodigital.simplesms;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 import android.app.IntentService;
 import android.app.NotificationManager;
@@ -13,6 +16,7 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.ratodigital.simplesms.service.ConfirmMessages;
 import com.ratodigital.simplesms.sms.SMSManager;
 
 public class GcmIntentService extends IntentService {
@@ -52,11 +56,11 @@ public class GcmIntentService extends IntentService {
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
                 
-            	checkNewMessagesFromServer();
+            	checkNewMessagesFromServer(extras.getString("text"));
             	
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
                 // Post notification of received message.
-                sendNotification("Received: " + extras.getString("msgText"));//extras.toString());
+                sendNotification("Received: " + extras.getString("text"));
                 Log.i(TAG, "Received: " + extras.toString());
             }
         }
@@ -87,8 +91,21 @@ public class GcmIntentService extends IntentService {
     }
     
     
-    private void checkNewMessagesFromServer() {
-		new SMSManager().pushMessages();
+    private void checkNewMessagesFromServer(String messageId) {
+    	SimpleSMSLogger.log(this, "Buscando a mensagem: "+messageId);
+    	List<String> sentMessages = new SMSManager().pushMessages(this, messageId);
+    	for (String id : sentMessages) {
+    		HashMap<String,String> map = new LinkedHashMap<String,String>();
+    		map.put("id", id);
+			try {
+				new ConfirmMessages().execute(map).get();
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			} catch (ExecutionException e) {
+				e.printStackTrace();
+			}
+		}
+		
 	}
     
 }

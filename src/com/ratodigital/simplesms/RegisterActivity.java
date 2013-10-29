@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -42,6 +43,10 @@ import com.ratodigital.simplesms.service.Logar;
  */
 public class RegisterActivity extends Activity {
 
+	public static final String PREFS_EMAIL = "email";
+	public static final String PREFS_PASSWORD = "password";
+	public static final String PREFS_NAME = "name";
+	protected static final String PREFS_LOG = "log";
 	public static final String EXTRA_MESSAGE = "message";
 	public static final String PROPERTY_REG_ID = "registration_id";
 	private static final String PROPERTY_APP_VERSION = "appVersion";
@@ -60,6 +65,7 @@ public class RegisterActivity extends Activity {
 	 * Tag used on log messages.
 	 */
 	static final String TAG = "GCM - SimpleSMS";
+	
 	private EditText editPassword;
 	private EditText editEmail;
 	private Button registrar;
@@ -73,21 +79,21 @@ public class RegisterActivity extends Activity {
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
+		
+		checkLogin();
 
 		setContentView(R.layout.main);
-		
 		editPassword = (EditText) findViewById(R.id.senha);
 		editEmail = (EditText) findViewById(R.id.email);
 		editName = (EditText) findViewById(R.id.name);
-		registrar = (Button) findViewById(R.id.registrar);
+		registrar = (Button) findViewById(R.id.buttonLimpar);
 		
 		SharedPreferences localData = getGCMPreferences(context);
-		editName.setText(localData.getString("name", null));
-		editEmail.setText(localData.getString("email", null));
-		editPassword.setText(localData.getString("password", null));
+		editName.setText(localData.getString(RegisterActivity.PREFS_NAME, null));
+		editEmail.setText(localData.getString(RegisterActivity.PREFS_EMAIL, null));
+		editPassword.setText(localData.getString(RegisterActivity.PREFS_PASSWORD, null));
 		
 		registrar.setOnClickListener(new View.OnClickListener() {
-
 			@Override
 			public void onClick(View arg0) {
 				String name = editName.getText().toString();
@@ -96,9 +102,9 @@ public class RegisterActivity extends Activity {
 				
 				SharedPreferences localData = getGCMPreferences(context);
 				SharedPreferences.Editor editor = localData.edit();
-				editor.putString("name", name);
-				editor.putString("password", password);
-				editor.putString("email", email);
+				editor.putString(RegisterActivity.PREFS_NAME, name);
+				editor.putString(RegisterActivity.PREFS_PASSWORD, password);
+				editor.putString(RegisterActivity.PREFS_EMAIL, email);
 				editor.commit();
 				
 				String regId = getRegistrationId(context);
@@ -119,6 +125,19 @@ public class RegisterActivity extends Activity {
 			registerBackground();
 		}
 		gcm = GoogleCloudMessaging.getInstance(this);
+	}
+
+	private void checkLogin() {
+		final SharedPreferences prefs = getGCMPreferences(getApplicationContext());
+		String nome = prefs.getString(RegisterActivity.PREFS_NAME, null);
+		String email = prefs.getString(RegisterActivity.PREFS_EMAIL, null);
+		String regId = prefs.getString(RegisterActivity.PROPERTY_REG_ID, null);
+		if(nome!=null && email != null && regId !=null){
+	        Intent i = new Intent(this, HomeActivity.class);
+	        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+	        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+	        getApplicationContext().startActivity(i);
+		}
 	}
 
 	/**
@@ -252,11 +271,12 @@ public class RegisterActivity extends Activity {
 
 	private void registerDeviceOnSimpleSmsServer(String name, String email, String regId, String password) {
 		HashMap<String, String> params = new HashMap<String, String>();
-		params.put("name", name);
-		params.put("email", email);
-		params.put("password", password);
-		params.put("regId", regId);
+		params.put(RegisterActivity.PREFS_NAME, name);
+		params.put(RegisterActivity.PREFS_EMAIL, email);
+		params.put(RegisterActivity.PREFS_PASSWORD, password);
+		params.put(RegisterActivity.PROPERTY_REG_ID, regId);
 		try {
+			@SuppressWarnings("unchecked")
 			JSONResponse result = new Logar().execute(params).get();
 			Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
 			Log.v(TAG, result.getMessage());

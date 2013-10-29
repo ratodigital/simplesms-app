@@ -27,7 +27,7 @@ public class MessagesJSONResponse extends JSONResponse{
 			JSONArray arrayMessages = json.getJSONArray("messages");
 			for (int i = 0; i < arrayMessages.length(); i++) {
 				JSONObject m = (JSONObject) arrayMessages.get(i);
-				Message message = new Message(m.getString("text"));
+				Message message = new Message(m.getString("id"),m.getString("text"));
 				JSONArray arrayNumber = m.getJSONArray("devices");
 				for (int j = 0; j < arrayNumber.length(); j++) {
 					message.addNumber(arrayNumber.getString(j));

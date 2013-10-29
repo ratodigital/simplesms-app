@@ -12,7 +12,10 @@ public class PullMessages extends AsyncTask<HashMap<String, String>, Void, Messa
 
 	@Override
     protected MessagesJSONResponse doInBackground(HashMap<String, String>... params) {
-    	String response = HttpUtil.performGet(HTTP_SIMPLESMSERVER_PULL_MSGs);
+		String id = params[0].get("id");
+		String URL = HTTP_SIMPLESMSERVER_PULL_MSGs+"/"+id;
+		System.out.println(URL);
+    	String response = HttpUtil.performGet(URL);
         return new MessagesJSONResponse(response);
     }
 	
