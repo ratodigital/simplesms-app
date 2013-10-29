@@ -34,6 +34,8 @@ import android.widget.EditText;
 import android.widget.Toast;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.ratodigital.simplesms.service.JSONResponse;
+import com.ratodigital.simplesms.service.Logar;
 
 /**
  * Main UI for the demo app.
@@ -254,7 +256,14 @@ public class RegisterActivity extends Activity {
 		params.put("email", email);
 		params.put("password", password);
 		params.put("regId", regId);
-		String result = HttpUtil.performPost("http://simplesmserver.appspot.com/gcm/register", params);
-		Log.v(TAG, result);
+		try {
+			JSONResponse result = new Logar().execute(params).get();
+			Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
+			Log.v(TAG, result.getMessage());
+		} catch (Exception e) {
+			// TODO Auto-generated catch block
+			Toast.makeText(this, "EX.: "+e.getMessage(), Toast.LENGTH_LONG).show();
+			e.printStackTrace();
+		}
 	}
 }

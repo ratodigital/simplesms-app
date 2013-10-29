@@ -13,9 +13,10 @@ import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.android.gms.gcm.GoogleCloudMessaging;
+import com.ratodigital.simplesms.sms.SMSManager;
 
 public class GcmIntentService extends IntentService {
-    static final String TAG = "GCMDemo";
+    static final String TAG = "GcmIntentService";
     
     public static final int NOTIFICATION_ID = 1;
     private NotificationManager mNotificationManager;
@@ -87,9 +88,7 @@ public class GcmIntentService extends IntentService {
     
     
     private void checkNewMessagesFromServer() {
-		HashMap<String, String> params = new HashMap<String, String>();
-		String result = HttpUtil.performGet("http://simplesmserver.appspot.com/gcm/list");
-		Log.v(TAG, result);
+		new SMSManager().pushMessages();
 	}
     
 }

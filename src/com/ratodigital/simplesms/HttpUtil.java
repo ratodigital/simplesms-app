@@ -101,7 +101,6 @@ final public class HttpUtil {
 		try {
 			// Add your data
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-			
 			for (Entry<String, String> param : params.entrySet()) {
 			    nameValuePairs.add(new BasicNameValuePair(param.getKey(), param.getValue()));
 			}
@@ -110,10 +109,8 @@ final public class HttpUtil {
 			// Execute HTTP Post Request
 			HttpResponse response = httpclient.execute(httppost);
 			int status = response.getStatusLine().getStatusCode();
-
-			//mDisplay.append(status + "\n");
 			if (status == 200) {
-				return response.getStatusLine().toString();
+				return EntityUtils.toString(response.getEntity());
 			}
 			return "ERROR CODE " + status;
 		} catch (ClientProtocolException e) {
