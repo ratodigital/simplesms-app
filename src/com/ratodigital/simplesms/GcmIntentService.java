@@ -1,5 +1,6 @@
 package com.ratodigital.simplesms;
 
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -55,11 +56,9 @@ public class GcmIntentService extends IntentService {
             // If it's a regular GCM message, do some work.
             } else if (GoogleCloudMessaging.
                     MESSAGE_TYPE_MESSAGE.equals(messageType)) {
-                
             	checkNewMessagesFromServer(extras.getString("text"));
             	
                 Log.i(TAG, "Completed work @ " + SystemClock.elapsedRealtime());
-                // Post notification of received message.
                 sendNotification("Received: " + extras.getString("text"));
                 Log.i(TAG, "Received: " + extras.toString());
             }
@@ -81,18 +80,19 @@ public class GcmIntentService extends IntentService {
         NotificationCompat.Builder mBuilder =
                 new NotificationCompat.Builder(this)
         .setSmallIcon(R.drawable.ic_stat_gcm)
-        .setContentTitle("GCM Notification")
+        .setContentTitle("SimpleSMS")
         .setStyle(new NotificationCompat.BigTextStyle()
-        .bigText(msg))
-        .setContentText(msg);
+        .bigText("Novas mensagens no servidor!"))
+        .setContentText("Novas mensagens no servidor!");
 
         mBuilder.setContentIntent(contentIntent);
         mNotificationManager.notify(NOTIFICATION_ID, mBuilder.build());
     }
     
     
-    private void checkNewMessagesFromServer(String messageId) {
-    	SimpleSMSLogger.log(this, "Buscando a mensagem: "+messageId);
+    @SuppressWarnings("unchecked")
+	private void checkNewMessagesFromServer(String messageId) {
+    	SimpleSMSLogger.log(this, "\nBuscando a mensagem: "+messageId);
     	List<String> sentMessages = new SMSManager().pushMessages(this, messageId);
     	for (String id : sentMessages) {
     		HashMap<String,String> map = new LinkedHashMap<String,String>();

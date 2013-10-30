@@ -293,8 +293,7 @@ public class RegisterActivity extends Activity {
 			}
 			Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
 		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Toast.makeText(this, "EX.: "+e.getMessage(), Toast.LENGTH_LONG).show();
+                                           			Toast.makeText(this, "EX.: "+e.getMessage(), Toast.LENGTH_LONG).show();
 			e.printStackTrace();
 		}
 	}
