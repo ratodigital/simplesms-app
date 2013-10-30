@@ -14,7 +14,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentLeft="true"
-        android:layout_alignParentRight="true"
         android:layout_below="@+id/textViewNome"
         android:text="@string/sample_email" />
 
@@ -25,7 +24,7 @@
         android:layout_alignLeft="@+id/TextViewEmail"
         android:layout_alignParentTop="true"
         android:text="@string/sample_name"
-        android:textSize="25sp"
+        android:textSize="28sp"
         android:textStyle="bold" />
 
     <Button
@@ -37,15 +36,35 @@
         android:layout_alignParentRight="true"
         android:text="@string/button_limpar" />
 
+    <Button
+        android:id="@+id/buttonLogoff"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/TextViewEmail"
+        android:layout_alignParentRight="true"
+        android:layout_alignTop="@+id/textViewNome"
+        android:layout_toRightOf="@+id/textViewNome"
+        android:background="@android:drawable/btn_minus" />
+
+    <TextView
+        android:id="@+id/textViewInstrucoes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/TextViewEmail"
+        android:layout_marginTop="18dp"
+        android:text="@string/instrucoes"
+        android:textSize="16sp" />
+
     <TextView
         android:id="@+id/textViewLog"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_above="@+id/buttonLimpar"
-        android:layout_alignLeft="@+id/TextViewEmail"
-        android:layout_alignRight="@+id/buttonLimpar"
-        android:layout_below="@+id/TextViewEmail"
-        android:layout_marginTop="18dp"
+        android:layout_alignLeft="@+id/textViewInstrucoes"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/textViewInstrucoes"
         android:background="#222222"
         android:text="@string/sample_log" />
 

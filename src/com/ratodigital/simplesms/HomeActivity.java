@@ -17,6 +17,7 @@ package com.ratodigital.simplesms;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -34,6 +35,7 @@ public class HomeActivity extends Activity {
 	private TextView email;
 	private TextView log;
 	private Button limpar;
+	private Button logout;
 	
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -45,6 +47,7 @@ public class HomeActivity extends Activity {
 		email = (TextView) findViewById(R.id.TextViewEmail);
 		log = (TextView) findViewById(R.id.textViewLog);
 		limpar = (Button) findViewById(R.id.buttonLimpar);
+		logout = (Button) findViewById(R.id.buttonLogoff);
 		
 		SharedPreferences localData = getSharedPreferences(RegisterActivity.class.getSimpleName(),
 				Context.MODE_PRIVATE);
@@ -59,7 +62,7 @@ public class HomeActivity extends Activity {
 				}
 			}
 		});
-		
+
 		
 		limpar.setOnClickListener(new View.OnClickListener() {
 			@Override
@@ -72,6 +75,26 @@ public class HomeActivity extends Activity {
 				log.setText("");
 			}
 		});
+		
+		logout.setOnClickListener(new View.OnClickListener() {
+			@Override
+			public void onClick(View arg0) {
+				SharedPreferences localData = getSharedPreferences(RegisterActivity.class.getSimpleName(),
+						Context.MODE_PRIVATE);
+				SharedPreferences.Editor editor = localData.edit();
+				editor.putString(RegisterActivity.PREFS_NAME, "");
+				editor.putString(RegisterActivity.PREFS_PASSWORD, "");
+				editor.putString(RegisterActivity.PREFS_EMAIL, "");
+				editor.commit();
+				
+				Intent i = new Intent(getApplicationContext(),RegisterActivity.class);
+		        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+		        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+		        getApplicationContext().startActivity(i);
+			}
+		});
+		
+		
 	}
 
 	

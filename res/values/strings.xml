@@ -46,5 +46,6 @@
     <string name="sample_name">sample_name</string>
     <string name="button_limpar">Limpar</string>
     <string name="sample_log">Colocar o log das açoes até agora...</string>
+    <string name="instrucoes">Acesse o seu cadastro no servidor http://simplesmserver.appspot.com/ e configure os números e dispositivos. \n\n Este aplicativo enviará as mensagens mesmo em modo standby.\n\n</string>
 
 </resources>

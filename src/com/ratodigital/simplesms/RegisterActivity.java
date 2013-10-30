@@ -80,6 +80,13 @@ public class RegisterActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		
+		context = getApplicationContext();
+		regid = getRegistrationId(context);
+		if (regid.length() == 0) {
+			registerBackground();
+		}
+		gcm = GoogleCloudMessaging.getInstance(this);
+		
 		checkLogin();
 
 		setContentView(R.layout.main);
@@ -96,9 +103,16 @@ public class RegisterActivity extends Activity {
 		registrar.setOnClickListener(new View.OnClickListener() {
 			@Override
 			public void onClick(View arg0) {
+				
+				if (getRegistrationId(context).length() == 0) {
+					registerBackground();
+				}
+				
 				String name = editName.getText().toString();
 				String password = editPassword.getText().toString();
 				String email = editEmail.getText().toString();
+				
+				
 				
 				SharedPreferences localData = getGCMPreferences(context);
 				SharedPreferences.Editor editor = localData.edit();
@@ -119,20 +133,15 @@ public class RegisterActivity extends Activity {
 			}
 		});
 
-		context = getApplicationContext();
-		regid = getRegistrationId(context);
-		if (regid.length() == 0) {
-			registerBackground();
-		}
-		gcm = GoogleCloudMessaging.getInstance(this);
+		
 	}
 
 	private void checkLogin() {
 		final SharedPreferences prefs = getGCMPreferences(getApplicationContext());
-		String nome = prefs.getString(RegisterActivity.PREFS_NAME, null);
-		String email = prefs.getString(RegisterActivity.PREFS_EMAIL, null);
-		String regId = prefs.getString(RegisterActivity.PROPERTY_REG_ID, null);
-		if(nome!=null && email != null && regId !=null){
+		String nome = prefs.getString(RegisterActivity.PREFS_NAME, "");
+		String email = prefs.getString(RegisterActivity.PREFS_EMAIL, "");
+		String regId = prefs.getString(RegisterActivity.PROPERTY_REG_ID, "");
+		if(nome.length()>0 && email.length()>0 && regId.length()>0){
 	        Intent i = new Intent(this, HomeActivity.class);
 	        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
 	        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -152,6 +161,7 @@ public class RegisterActivity extends Activity {
 	private void setRegistrationId(Context context, String regId) {
 		final SharedPreferences prefs = getGCMPreferences(context);
 		int appVersion = getAppVersion(context);
+		System.out.println("Saving regId on app version " + appVersion);
 		Log.v(TAG, "Saving regId on app version " + appVersion);
 		SharedPreferences.Editor editor = prefs.edit();
 		editor.putString(PROPERTY_REG_ID, regId);
@@ -271,15 +281,17 @@ public class RegisterActivity extends Activity {
 
 	private void registerDeviceOnSimpleSmsServer(String name, String email, String regId, String password) {
 		HashMap<String, String> params = new HashMap<String, String>();
-		params.put(RegisterActivity.PREFS_NAME, name);
-		params.put(RegisterActivity.PREFS_EMAIL, email);
-		params.put(RegisterActivity.PREFS_PASSWORD, password);
-		params.put(RegisterActivity.PROPERTY_REG_ID, regId);
+		params.put(Logar.PARAM_NAME, name);
+		params.put(Logar.PARAM_EMAIL, email);
+		params.put(Logar.PARAM_PASSWORD, password);
+		params.put(Logar.PARAM_REGID, regId);
 		try {
 			@SuppressWarnings("unchecked")
 			JSONResponse result = new Logar().execute(params).get();
+			if(!"ERROR".equals(result.getStatus())){
+				checkLogin();
+			}
 			Toast.makeText(this, result.getMessage(), Toast.LENGTH_SHORT).show();
-			Log.v(TAG, result.getMessage());
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			Toast.makeText(this, "EX.: "+e.getMessage(), Toast.LENGTH_LONG).show();
